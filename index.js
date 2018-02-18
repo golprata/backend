@@ -1,3 +1,4 @@
+cors = require('cors');
 const express = require("express");
 const mysql2 = require("mysql2");
 const bodyParser = require("body-parser");
@@ -5,7 +6,7 @@ const bodyParser = require("body-parser");
 
 const app = express();
 
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.urlencoded(),cors());
 
 const conexao = mysql2.createConnection({
     host: "localhost",
@@ -14,14 +15,14 @@ const conexao = mysql2.createConnection({
     database: "dbpos"
 });
 app.post('/contato', function (req, res) {
-    
     const sql = "INSERT INTO contato (nome, email, nascimento, profissao, empresa, aceita_emails) VALUES (?, ?, ?, ?, ?, ?);";
     const valores = [req.body.nome, req.body.email, req.body.nascimento, req.body.profissao, req.body.empresa, req.body.aceita_emails];
     const sql2 = "INSERT INTO endereco (rua, bairro, cidade, estado, cep, contato_id) VALUES (?, ?, ?, ?, ?, ?);";
     conexao.query(sql, valores, function (erro, resultado) {
         var url = req.headers.referer;
-        if (url.indexOf("contato.html") < 0) {
-            url = url + "contato.html";
+        console.log(url);
+        if (url.indexOf("index.html") < 0) {
+            url = url + "index.html";
         }
                 
         if (erro) {
@@ -39,8 +40,9 @@ app.post('/contato', function (req, res) {
                 }
             });
             console.log("Dados inserido no banco. Id:"+resultado.insertId);
-            res.redirect(url + "?retorno=sucesso");
-            //res.on({ msg: 'OK' });
+            //res.redirect(url + "?retorno=sucesso");
+            res.json({ msg: 'OK' });
+            
            
         }
     });
